@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+generator dbml {
+  provider = "prisma-dbml-generator"
+}
+
+model User {
+  id                  String     @id @default(auto()) @map("_id") @db.ObjectId
+  firstName           String
+  lastName            String
+  gender              String
+  email               String     @unique
+  active              Boolean
+  language            String
+  Token               Token[]
+  password            String
+  createdAt           DateTime?  @default(now())
+  updatedAt           DateTime?  @updatedAt
+  avatar_src          String?
+  role                Role       @default(MANAGER)
+  phone               String?
+  deliveriesAsCourier Delivery[] @relation("CourierToDelivery")
+  deliveriesAsManager Delivery[] @relation("ManagerToDelivery")
+}
+
+model Token {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  token       String
+  type        TokenType
+  expires     DateTime
+  blacklisted Boolean
+  createdAt   DateTime  @default(now())
+  user        User      @relation(fields: [userId], references: [id])
+  userId      String    @db.ObjectId
+}
+
+model Delivery {
+  id         String        @id @default(auto()) @map("_id") @db.ObjectId
+  car        Boolean
+  comment    String?
+  contents   String
+  date       DateTime
+  express    Boolean
+  state      DeliveryState
+  time_end   DateTime // Assuming conversion of `timeSchema` to a suitable format
+  time_start DateTime // Assuming conversion of `timeSchema` to a suitable format
+  weight     Float
+  createdAt  DateTime?     @default(now())
+  updatedAt  DateTime?     @updatedAt
+  contact    Contact       @relation(fields: [contact_id], references: [id])
+  contact_id String        @db.ObjectId
+  client     Client        @relation(fields: [client_id], references: [id])
+  client_id  String        @db.ObjectId
+  address    Address       @relation(fields: [address_id], references: [id])
+  address_id String        @db.ObjectId
+  courier    User?         @relation("CourierToDelivery", fields: [courier_id], references: [id])
+  courier_id String?       @db.ObjectId
+  manager    User          @relation("ManagerToDelivery", fields: [manager_id], references: [id])
+  manager_id String        @db.ObjectId
+}
+
+model Address {
+  id         String         @id @default(auto()) @map("_id") @db.ObjectId
+  address    String
+  longitude  String?
+  latitude   String?
+  city       String
+  subway     SubwayStation? @relation(fields: [subway_id], references: [id])
+  subway_id  String?        @db.ObjectId
+  active     Boolean        @default(true)
+  deliveries Delivery[]
+  clients    Client[]       @relation(fields: [clientsIDs], references: [id])
+  clientsIDs String[]       @db.ObjectId
+}
+
+model SubwayStation {
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  line_name  String
+  line_id    String
+  line_color String
+  name       String
+  addresses  Address[]
+}
+
+model Contact {
+  id         String     @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  email      String?
+  job        String?
+  active     Boolean    @default(true)
+  phone      String
+  clients    Client[]   @relation(fields: [clientIDs], references: [id])
+  clientIDs  String[]   @db.ObjectId
+  deliveries Delivery[]
+}
+
+model Client {
+  id           String     @id @default(auto()) @map("_id") @db.ObjectId
+  type         ClientType
+  name         String
+  active       Boolean    @default(true)
+  createdAt    DateTime?  @default(now())
+  updatedAt    DateTime?  @updatedAt
+  deliveries   Delivery[]
+  contacts     Contact[]  @relation(fields: [contactsIDs], references: [id])
+  contactsIDs  String[]   @db.ObjectId
+  addresses    Address[]  @relation(fields: [addressesIDs], references: [id])
+  addressesIDs String[]   @db.ObjectId
+}
+
+enum ClientType {
+  personal
+  organization
+}
+
+enum Role {
+  COURIER
+  MANAGER
+}
+
+enum TokenType {
+  ACCESS
+  REFRESH
+  RESET_PASSWORD
+  VERIFY_EMAIL
+}
+
+enum DeliveryState {
+  created
+  delivering
+  canceled
+  done
+}
