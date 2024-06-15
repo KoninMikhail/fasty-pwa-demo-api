@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "es2017",
+    "outDir": "./build",
+    "module": "commonjs",
+    "types": ["node"],
+    "resolveJsonModule": true,
+    "diagnostics": false,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "skipLibCheck": true,
+    "strictNullChecks": true,
+  },
+}

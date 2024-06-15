@@ -1,0 +1,153 @@
+//// ------------------------------------------------------
+//// THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
+//// ------------------------------------------------------
+
+Table User {
+  id String [pk]
+  firstName String [not null]
+  lastName String [not null]
+  gender String [not null]
+  email String [unique, not null]
+  active Boolean [not null]
+  language String [not null]
+  Token Token [not null]
+  password String [not null]
+  createdAt DateTime [default: `now()`]
+  updatedAt DateTime
+  avatar_src String
+  role Role [not null, default: 'MANAGER']
+  phone String
+  deliveriesAsCourier Delivery [not null]
+  deliveriesAsManager Delivery [not null]
+}
+
+Table Token {
+  id String [pk]
+  token String [not null]
+  type TokenType [not null]
+  expires DateTime [not null]
+  blacklisted Boolean [not null]
+  createdAt DateTime [default: `now()`, not null]
+  user User [not null]
+  userId String [not null]
+}
+
+Table Delivery {
+  id String [pk]
+  car Boolean [not null]
+  comment String
+  contents String [not null]
+  date DateTime [not null]
+  express Boolean [not null]
+  state DeliveryState [not null]
+  time_end DateTime [not null]
+  time_start DateTime [not null]
+  weight Float [not null]
+  createdAt DateTime [default: `now()`]
+  updatedAt DateTime
+  contact Contact [not null]
+  contact_id String [not null]
+  client Client [not null]
+  client_id String [not null]
+  address Address [not null]
+  address_id String [not null]
+  courier User
+  courier_id String
+  manager User [not null]
+  manager_id String [not null]
+}
+
+Table Address {
+  id String [pk]
+  address String [not null]
+  longitude String
+  latitude String
+  city String [not null]
+  subway SubwayStation
+  subway_id String
+  active Boolean [not null, default: true]
+  deliveries Delivery [not null]
+  clients Client [not null]
+  clientsIDs String[] [not null]
+}
+
+Table SubwayStation {
+  id String [pk]
+  line_name String [not null]
+  line_id String [not null]
+  line_color String [not null]
+  name String [not null]
+  addresses Address [not null]
+}
+
+Table Contact {
+  id String [pk]
+  name String [not null]
+  email String
+  job String
+  active Boolean [not null, default: true]
+  phone String [not null]
+  clients Client [not null]
+  clientIDs String[] [not null]
+  deliveries Delivery [not null]
+}
+
+Table Client {
+  id String [pk]
+  type ClientType [not null]
+  name String [not null]
+  active Boolean [not null, default: true]
+  createdAt DateTime [default: `now()`]
+  updatedAt DateTime
+  deliveries Delivery [not null]
+  contacts Contact [not null]
+  contactsIDs String[] [not null]
+  addresses Address [not null]
+  addressesIDs String[] [not null]
+}
+
+Enum ClientType {
+  personal
+  organization
+}
+
+Enum Role {
+  COURIER
+  MANAGER
+}
+
+Enum TokenType {
+  ACCESS
+  REFRESH
+  RESET_PASSWORD
+  VERIFY_EMAIL
+}
+
+Enum DeliveryState {
+  created
+  delivering
+  canceled
+  done
+}
+
+Ref: Token.userId > User.id
+
+Ref: Delivery.contact_id > Contact.id
+
+Ref: Delivery.client_id > Client.id
+
+Ref: Delivery.address_id > Address.id
+
+Ref: Delivery.courier_id > User.id
+
+Ref: Delivery.manager_id > User.id
+
+Ref: Address.subway_id > SubwayStation.id
+
+Ref: Address.clientsIDs > Client.id
+
+Ref: Contact.clientIDs > Client.id
+
+Ref: Client.contactsIDs > Contact.id
+
+Ref: Client.addressesIDs > Address.id

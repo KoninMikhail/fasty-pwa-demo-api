@@ -1,0 +1,328 @@
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+        firstName:
+          type: string
+        lastName:
+          type: string
+        gender:
+          type: string
+        email:
+          type: string
+          format: email
+        active:
+          type: boolean
+        language:
+          type: string
+        Token:
+          type: array
+          items:
+            $ref: '#/components/schemas/Token'
+        password:
+          type: string
+        avatar_src:
+          type: string
+        role:
+          type: string
+          enum:
+            - COURIER
+            - MANAGER
+        phone:
+          type: string
+        deliveriesAsCourier:
+          type: array
+          items:
+            $ref: '#/components/schemas/Delivery'
+        deliveriesAsManager:
+          type: array
+          items:
+            $ref: '#/components/schemas/Delivery'
+      example:
+          id: 5ebac534954b54139806c112
+          email: fake@example.com
+          name: fake name
+          role: COURIER
+    Contact:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        job:
+          type: string
+        active:
+          type: boolean
+          default: true
+        phone:
+          type: string
+        clients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Client'
+        clientIDs:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - name
+        - phone
+        - active
+    Address:
+      type: object
+      properties:
+        id:
+          type: string
+        address:
+          type: string
+        longitude:
+          type: string
+        latitude:
+          type: string
+        city:
+          type: string
+        subway:
+          $ref: '#/components/schemas/SubwayStation'
+        subway_id:
+          type: string
+        active:
+          type: boolean
+          default: true
+        deliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Delivery'
+        clients:
+          type: array
+          items:
+            $ref: '#/components/schemas/Client'
+        clientsIDs:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - address
+        - city
+        - active
+    SubwayStation:
+      type: object
+      properties:
+        id:
+          type: string
+        line_name:
+          type: string
+        line_id:
+          type: string
+        line_color:
+          type: string
+        name:
+          type: string
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+      required:
+        - id
+        - line_name
+        - line_id
+        - line_color
+        - name
+      example:
+        id: 5ebac534954b54139806c112
+        line_name: Circle
+        line_id: 1
+        line_color: #cecece
+        name: Station name
+    Delivery:
+      type: object
+      properties:
+        id:
+          type: string
+        car:
+          type: boolean
+        comment:
+          type: string
+        contents:
+          type: string
+        date:
+          type: string
+          format: date-time
+        express:
+          type: boolean
+        state:
+          type: string
+          enum:
+            - created
+            - delivering
+            - canceled
+            - done
+        time_end:
+          type: string
+          format: date-time
+        time_start:
+          type: string
+          format: date-time
+        weight:
+          type: number
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        contact:
+          $ref: '#/components/schemas/Contact'
+        contact_id:
+          type: string
+        client:
+          $ref: '#/components/schemas/Client'
+        client_id:
+          type: string
+        address:
+          $ref: '#/components/schemas/Address'
+        address_id:
+          type: string
+        courier:
+          $ref: '#/components/schemas/User'
+        courier_id:
+          type: string
+        manager:
+          $ref: '#/components/schemas/User'
+        manager_id:
+          type: string
+      required:
+        - id
+        - car
+        - contents
+        - date
+        - express
+        - state
+        - time_end
+        - time_start
+        - weight
+    Client:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          type: string
+          enum:
+            - personal
+            - organization
+        name:
+          type: string
+        active:
+          type: boolean
+          default: true
+        createdAt:
+          type: string
+          format: date-time
+        updatedAt:
+          type: string
+          format: date-time
+        deliveries:
+          type: array
+          items:
+            $ref: '#/components/schemas/Delivery'
+        contacts:
+          type: array
+          items:
+            $ref: '#/components/schemas/Contact'
+        contactsIDs:
+          type: array
+          items:
+            type: string
+        addresses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Address'
+        addressesIDs:
+          type: array
+          items:
+            type: string
+      required:
+        - id
+        - type
+        - name
+        - active
+    Token:
+      type: object
+      properties:
+        token:
+          type: string
+        expires:
+          type: string
+          format: date-time
+      example:
+        token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1ZWJhYzUzNDk1NGI1NDEzOTgwNmMxMTIiLCJpYXQiOjE1ODkyOTg0ODQsImV4cCI6MTU4OTMwMDI4NH0.m1U63blB0MLej_WfB7yC2FTMnCziif9X8yzwDEfJXAg
+        expires: 2020-05-12T16:18:04.793Z
+
+    AuthTokens:
+      type: object
+      properties:
+        access:
+          $ref: '#/components/schemas/Token'
+        refresh:
+          $ref: '#/components/schemas/Token'
+
+    Error:
+      type: object
+      properties:
+        code:
+          type: number
+        message:
+          type: string
+
+  responses:
+    DuplicateEmail:
+      description: Email already taken
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 400
+            message: Email already taken
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 401
+            message: Please authenticate
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 403
+            message: Forbidden
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Error'
+          example:
+            code: 404
+            message: Not found
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
