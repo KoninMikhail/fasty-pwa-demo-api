@@ -1,0 +1,17 @@
+{
+  "version": 2,
+  "buildCommand": "prisma generate && yarn build",
+  "devCommand": "prisma generate && yarn dev",
+  "builds": [
+    {
+      "src": "build/src/index.js",
+      "use": "@now/node"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "build/src/app.js"
+    }
+  ]
+}
