@@ -1,92 +1,111 @@
 import prisma from '../client';
-import { Delivery, DeliveryState, Prisma, User } from '@prisma/client';
+import { Address, Client, Contact, Delivery, DeliveryState, Prisma, User } from '@prisma/client';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
+import exclude from '../utils/exclude';
 
-interface DeliveryFilterParams {
-  userId?: User['id'];
-  car?: boolean;
-  express?: boolean;
-  state?: DeliveryState | DeliveryState[]; // Single state or array of states
-  dateFrom?: Date; // ISO string date
-  dateTo?: Date; // ISO string date
+const getDeliveriesQueryStateFilter = (state?: string | string[]) => {
+  if (!state) return undefined;
+  return Array.isArray(state) ? { state: { in: state } } : { state };
+};
+const getDeliveriesQueryWeightFilter = (weightMin?: number, weightMax?: number) => {
+  if (!weightMin && !weightMax) return undefined;
+  if (weightMin && weightMax) return { weight: { gte: weightMin, lte: weightMax } };
+  if (weightMin) return { weight: { gte: weightMin } };
+  return { weight: { lte: weightMax } };
+};
+const getDeliveriesQueryDateFilter = (dateFrom?: string, dateTo?: string) => {
+  const getDate = (givenDate: string): string => {
+    const frozenDate = new Date(givenDate);
+    const offset = frozenDate.getTimezoneOffset();
+    const outputDate = new Date(frozenDate.getTime() - offset * 60 * 1000);
+    return outputDate.toISOString().split('T')[0];
+  };
+
+  if (dateFrom && dateTo) {
+    if (new Date(dateFrom).getTime() === new Date(dateTo).getTime()) {
+      console.log('dateFrom === dateTo');
+      const singleDay = new Date(getDate(dateFrom));
+      const nextDay = new Date(singleDay.getTime() + 24 * 60 * 60 * 1000);
+      return {
+        date: {
+          gte: singleDay,
+          lt: nextDay
+        }
+      };
+    }
+    return { date: { gte: new Date(getDate(dateFrom)), lte: new Date(getDate(dateTo)) } };
+  }
+  if (dateFrom) return { date: { gte: new Date(getDate(dateFrom)) } };
+  if (dateTo) return { date: { lte: new Date(getDate(dateTo)) } };
+  return undefined;
+};
+
+type DeliveryFilter = {
+  state?: string | string[];
+  dateFrom?: string;
+  dateTo?: string;
   weightMin?: number;
   weightMax?: number;
-}
-
-const getAllDeliveries = async () => {
-  return prisma.delivery.findMany();
+  [key: string]: any;
 };
 
-const getDeliveriesByParams = async (
-  filters: DeliveryFilterParams = {},
-  include: Prisma.DeliveryInclude = {}
+const queryDeliveries = async <Include extends keyof Prisma.DeliveryInclude>(
+  filter: DeliveryFilter,
+  options: {
+    limit?: number;
+    page?: number;
+    sortBy?: string;
+    sortType?: 'asc' | 'desc';
+  },
+  include: Include[] = ['contact', 'courier', 'manager', 'address', 'client'] as Include[]
 ) => {
-  const { userId, car, express, state, dateFrom, dateTo, weightMin, weightMax } = filters;
+  const page = options.page ?? 1;
+  const limit = options.limit ?? 10;
+  const sortBy = options.sortBy ?? 'date';
+  const sortType = options.sortType ?? 'desc';
 
-  const dateFilters = [];
-  if (dateFrom) {
-    dateFilters.push({
-      date: {
-        gte: dateFrom
-      }
-    });
-  }
-  if (dateTo) {
-    dateFilters.push({
-      date: {
-        lte: dateTo
-      }
-    });
-  }
+  const state = getDeliveriesQueryStateFilter(filter.state) ?? {};
+  const weight = getDeliveriesQueryWeightFilter(filter.weightMin, filter.weightMax) ?? {};
+  const date = getDeliveriesQueryDateFilter(filter.dateFrom, filter.dateTo) ?? {};
+  const omittedFilter = exclude(filter, ['state', 'dateFrom', 'dateTo', 'weightMin', 'weightMax']);
 
-  let stateCondition = {};
-  if (Array.isArray(state)) {
-    stateCondition = {
-      state: {
-        in: state // Prisma 'in' condition for array of states
-      }
-    };
-  } else if (state) {
-    stateCondition = { state };
-  }
-
-  const userCondition = userId
-    ? {
-        OR: [
-          {
-            courier_id: userId
-          },
-          {
-            manager_id: userId
-          }
-        ]
-      }
-    : {};
-
-  return prisma.delivery.findMany({
+  const deliveries = await prisma.delivery.findMany({
     where: {
       AND: [
-        ...dateFilters,
-        ...(Object.keys(stateCondition).length ? [stateCondition] : []),
-        ...(Object.keys(userCondition).length ? [userCondition] : []),
-        car !== undefined ? { car } : undefined,
-        express !== undefined ? { express } : undefined,
-        weightMin !== undefined ? { weight: { gte: weightMin } } : undefined,
-        weightMax !== undefined ? { weight: { lte: weightMax } } : undefined
-      ].filter((condition) => condition !== undefined) as Prisma.DeliveryWhereInput[]
+        ...Object.entries(omittedFilter).map(([key, value]) => ({ [key]: value })),
+        state,
+        date,
+        weight
+      ]
     },
-    include
+    include: include.reduce((acc, cur) => {
+      if (cur === 'address') return { ...acc, [cur]: { include: { subway: true } } };
+      return { ...acc, [cur]: true };
+    }, {}),
+    skip: page > 1 ? page * limit : 0,
+    take: limit,
+    orderBy: sortBy ? { [sortBy]: sortType } : undefined
   });
+
+  return deliveries as (Partial<Delivery> & {
+    contact: Contact;
+    courier: User;
+    manager: User;
+    address: Address;
+    client: Client;
+  })[];
 };
 
-const getDeliveryById = async (deliveryId: string) => {
+const findDeliveryById = async (deliveryId: string) => {
   return prisma.delivery.findFirst({
     where: {
       id: deliveryId
     },
     include: {
       contact: true,
+      courier: true,
+      manager: true,
       address: {
         include: {
           subway: true
@@ -108,7 +127,7 @@ const attachCourierToDelivery = async (deliveryId: string, courierId: string) =>
   if (!courierId) {
     throw new ApiError(httpStatus.BAD_REQUEST, 'Courier ID is required');
   }
-  return updateDeliveryById(deliveryId, { courier_id: courierId });
+  return updateDeliveryById(deliveryId, { courier_id: courierId, state: 'delivering' });
 };
 
 const setDeliveryState = async (deliveryId: string, state: DeliveryState) => {
@@ -119,8 +138,8 @@ const setDeliveryState = async (deliveryId: string, state: DeliveryState) => {
 };
 
 export default {
-  getDeliveriesByParams,
-  getDeliveryById,
+  queryDeliveries,
+  findDeliveryById,
   updateDeliveryById,
   attachCourierToDelivery,
   setDeliveryState

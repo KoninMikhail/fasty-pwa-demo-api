@@ -3,10 +3,13 @@ import { Role } from '@prisma/client';
 const allRoles = {
   [Role.COURIER]: [
     'getDeliveries',
-    'getAttachedDeliveries',
-    'manageDeliveryState',
+    'getSelfDeliveries',
+    'assignDeliveries',
+    'updateAssignedDeliveries',
     'getUsers',
-    'manageUsers'
+    'getSelfAccount',
+    'updateSelfAccount',
+    'uploadFiles'
   ],
   [Role.MANAGER]: []
 };

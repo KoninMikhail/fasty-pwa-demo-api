@@ -2,7 +2,6 @@ import express from 'express';
 import validate from '../../middlewares/validate';
 import authValidation from '../../validations/auth.validation';
 import { authController } from '../../controllers';
-import auth from '../../middlewares/auth';
 
 const router = express.Router();
 
@@ -23,7 +22,6 @@ router.post(
   validate(authValidation.resetPassword),
   authController.resetPassword
 );
-router.route('/me').get(auth(), authController.getAuthorizedUserData);
 
 export default router;
 

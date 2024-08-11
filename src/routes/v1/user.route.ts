@@ -8,13 +8,14 @@ import { upload } from '../../middlewares/upload';
 const router = express.Router();
 
 router.route('/').get(auth('getUsers'), validate(userValidation.getUsers), userController.getUsers);
-
 router
   .route('/:userId')
-  .get(auth('getUsers'), validate(userValidation.getUser), userController.getUser)
-  .patch(auth('manageUsers'), validate(userValidation.updateUser), userController.updateUser);
+  .get(auth('getUsers'), validate(userValidation.getUser), userController.getUser);
 
-router.route('/:userId/uploadAvatar').post(upload.single('image'), userController.uploadAvatar);
+router.route('/me/profileData').get(auth('getSelfAccount'), userController.getAuthorizedUserData);
+router
+  .route('/me/uploadAvatar')
+  .post(auth('uploadFiles'), upload.single('image'), userController.uploadAvatar);
 
 export default router;
 
@@ -70,24 +71,9 @@ export default router;
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 results:
- *                   type: array
- *                   items:
- *                     $ref: '#/components/schemas/User'
- *                 page:
- *                   type: integer
- *                   example: 1
- *                 limit:
- *                   type: integer
- *                   example: 10
- *                 totalPages:
- *                   type: integer
- *                   example: 1
- *                 totalResults:
- *                   type: integer
- *                   example: 1
+ *                type: array
+ *                items:
+ *                  $ref: '#/components/schemas/User'
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "403":
@@ -174,4 +160,55 @@ export default router;
  *         $ref: '#/components/responses/Forbidden'
  *       "404":
  *         $ref: '#/components/responses/NotFound'
+ */
+
+/**
+ * @swagger
+ * /users/me/profileData:
+ *   get:
+ *     summary: Get me
+ *     description: Get the currently logged in user
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/User'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ */
+
+/**
+ * @swagger
+ * /users/me/uploadAvatar:
+ *   post:
+ *     summary: Update a user avatar
+ *     description: Only logged in users may update their own avatar.
+ *     tags: [Users]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         multipart/form-data:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               image:
+ *                 type: string
+ *                 format: binary
+ *                 description: The user's avatar image
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *                $ref: '#/components/schemas/User'
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
  */

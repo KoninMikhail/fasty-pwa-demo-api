@@ -17,7 +17,7 @@ const envVarsSchema = Joi.object()
       .description('days after which refresh tokens expire'),
     JWT_RESET_PASSWORD_EXPIRATION_MINUTES: Joi.number()
       .default(10)
-      .description('minutes after which reset password token expires'),
+      .description('minutes after which reset password token expires')
   })
   .unknown();
 

@@ -34,6 +34,7 @@ Table Token {
 
 Table Delivery {
   id String [pk]
+  deliveryId Float [not null]
   car Boolean [not null]
   comment String
   contents String [not null]
@@ -104,6 +105,11 @@ Table Client {
   contactsIDs String[] [not null]
   addresses Address [not null]
   addressesIDs String[] [not null]
+}
+
+Table System {
+  id String [pk]
+  waitUpdateDemoData Boolean [not null, default: false]
 }
 
 Enum ClientType {

@@ -143,6 +143,8 @@ const updateUserById = async <Key extends keyof User>(
     'gender',
     'active',
     'language',
+    'createdAt',
+    'updatedAt',
     'avatar_src',
     'phone'
   ] as Key[]

@@ -1,64 +1,27 @@
 import catchAsync from '../utils/catchAsync';
-import { User } from '@prisma/client';
+import { DeliveryState, User } from '@prisma/client';
 import { deliveryService } from '../services';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import exclude from '../utils/exclude';
+import pick from '../utils/pick';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
-const getDeliveriesWithoutCourier = catchAsync(async (req, res) => {
+const getUnassignedDeliveries = catchAsync(async (req, res) => {
   const { query } = req;
-  const dateFrom = typeof query.dateFrom === 'string' ? new Date(query.dateFrom) : undefined;
-  const dateTo = typeof query.dateTo === 'string' ? new Date(query.dateTo) : undefined;
 
-  const allUpcomingDeliveries = await deliveryService
-    .getDeliveriesByParams(
-      {
-        dateFrom,
-        dateTo,
-        state: ['created']
-      },
-      {
-        address: {
-          include: {
-            subway: true
-          }
-        }
-      }
-    )
-    .then((deliveries) => deliveries.filter((delivery) => !delivery.courier_id))
-    .then((deliveries) => {
-      return deliveries.map((delivery) => {
-        const { courier_id, client_id, address_id, manager_id, contact_id, address, ...rest } =
-          delivery;
-        return {
-          ...rest,
-          address: exclude(address, ['clientsIDs', 'subway_id'])
-        };
-      });
-    });
+  const options = pick(query, ['limit', 'page', 'sortBy', 'sortType']);
+  const filters = pick(query, ['express', 'car', 'dateFrom', 'dateTo', 'weightMin', 'weightMax']);
 
-  return res.send(allUpcomingDeliveries);
-});
-
-const getInProgressUserDeliveries = catchAsync(async (req, res) => {
-  const user = req.user as User;
-  const deliveries = await deliveryService.getDeliveriesByParams(
+  const deliveries = await deliveryService.queryDeliveries(
     {
-      userId: user.id
+      ...filters,
+      state: [DeliveryState.created]
     },
-    {
-      contact: true,
-      address: {
-        include: {
-          subway: true
-        }
-      },
-      manager: true,
-      client: true
-    }
+    options
   );
+
   const deliveriesWithoutIds = deliveries.map((delivery) => {
     const {
       contact,
@@ -78,48 +41,105 @@ const getInProgressUserDeliveries = catchAsync(async (req, res) => {
       client: exclude(client, ['contactsIDs', 'addressesIDs', 'createdAt', 'updatedAt'])
     };
   });
+
   return res.send(deliveriesWithoutIds);
 });
 
-const getCompletedUserDeliveries = catchAsync(async (req, res) => {
+const getCourierDeliveries = catchAsync(async (req, res) => {
   const user = req.user as User;
-  const deliveries = await deliveryService.getDeliveriesByParams({
-    userId: user.id,
-    state: ['done', 'canceled']
+  const { query } = req;
+
+  const filters = pick(query, ['express', 'car', 'dateFrom', 'dateTo', 'weightMin', 'weightMax']);
+  const options = pick(query, ['limit', 'page', 'sortBy', 'sortType']);
+
+  const deliveries = await deliveryService.queryDeliveries(
+    {
+      ...filters,
+      courier_id: user.id,
+      state: DeliveryState.delivering
+    },
+    options
+  );
+
+  const deliveriesWithoutIds = deliveries.map((delivery) => {
+    const {
+      contact,
+      address,
+      client,
+      client_id,
+      address_id,
+      courier_id,
+      contact_id,
+      manager_id,
+      ...rest
+    } = delivery;
+    return {
+      ...rest,
+      contact: exclude(contact, ['clientIDs']),
+      address: exclude(address, ['clientsIDs']),
+      client: exclude(client, ['contactsIDs', 'addressesIDs', 'createdAt', 'updatedAt'])
+    };
   });
-  return res.send(deliveries);
+
+  return res.send(deliveriesWithoutIds);
+});
+
+const getCourierHistoryDeliveries = catchAsync(async (req, res) => {
+  const options = pick(req.query, ['limit', 'page']);
+  const user = req.user as User;
+
+  const deliveries = await deliveryService.queryDeliveries(
+    {
+      courier_id: user.id,
+      state: [DeliveryState.done, DeliveryState.canceled]
+    },
+    options
+  );
+  const deliveriesWithoutIds = deliveries.map((delivery) => ({
+    ...exclude(delivery, ['manager_id', 'contact_id', 'client_id', 'address_id'])
+  }));
+
+  return res.send(deliveriesWithoutIds);
 });
 
 const getDeliveryById = catchAsync(async (req, res) => {
   const { deliveryId } = req.params;
-  const delivery = await deliveryService.getDeliveryById(deliveryId);
+  const delivery = await deliveryService.findDeliveryById(deliveryId);
 
   if (!delivery) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Delivery not found');
   }
 
-  return res.send(delivery);
+  const deliveryWithoutIds = {
+    ...exclude(delivery, ['client_id', 'address_id', 'courier_id', 'contact_id', 'manager_id']),
+    contact: exclude(delivery.contact, ['clientIDs']),
+    address: exclude(delivery.address, ['clientsIDs']),
+    client: exclude(delivery.client, ['contactsIDs', 'addressesIDs', 'createdAt', 'updatedAt'])
+  };
+
+  return res.send(deliveryWithoutIds);
 });
 
 const setDeliveryState = catchAsync(async (req, res) => {
   const { deliveryId } = req.params;
-  const deliveryWithUpdatedState = await deliveryService.setDeliveryState(
-    deliveryId,
-    req.body.state
-  );
-  return res.send(deliveryWithUpdatedState);
+  const { state } = req.body;
+  const updatedDelivery = await deliveryService.setDeliveryState(deliveryId, state);
+  return res.send(updatedDelivery);
 });
 
 const attachDeliveryToUser = catchAsync(async (req, res) => {
-  const { deliveryId } = req.params;
   const user = req.user as User;
-  const delivery = await deliveryService.attachCourierToDelivery(deliveryId, user.id);
+  const { deliveryId } = req.params;
+  const userId = user.id;
+  const delivery = await deliveryService.attachCourierToDelivery(deliveryId, userId);
 
   if (!delivery) {
     throw new ApiError(httpStatus.NOT_FOUND, 'Delivery not found');
   }
 
-  return res.send(delivery);
+  const updatedDelivery = await deliveryService.findDeliveryById(deliveryId);
+
+  return res.send(updatedDelivery);
 });
 
 const getDeliveriesByQuery = catchAsync(async (req, res) => {
@@ -128,9 +148,9 @@ const getDeliveriesByQuery = catchAsync(async (req, res) => {
 });
 
 export default {
-  getDeliveriesWithoutCourier,
-  getDeliveriesOfCurrentUser: getInProgressUserDeliveries,
-  getCompletedUserDeliveries,
+  getUnassignedDeliveries,
+  getCourierDeliveries,
+  getCourierHistoryDeliveries,
   getDeliveryById,
   setDeliveryState,
   attachDeliveryToUser,

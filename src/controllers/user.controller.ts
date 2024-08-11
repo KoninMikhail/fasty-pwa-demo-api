@@ -4,6 +4,7 @@ import ApiError from '../utils/ApiError';
 import catchAsync from '../utils/catchAsync';
 import { userService } from '../services';
 import { UPLOADS_PATH } from '../config/uploads';
+import { User } from '@prisma/client';
 
 const getUsers = catchAsync(async (req, res) => {
   const filter = pick(req.query, ['name', 'role']);
@@ -26,17 +27,25 @@ const updateUser = catchAsync(async (req, res) => {
   res.send(user);
 });
 
+const getAuthorizedUserData = catchAsync(async (req, res) => {
+  const user = req.user as User;
+  const userData = await userService.findUserById(user.id);
+  res.send(userData);
+});
+
 const uploadAvatar = catchAsync(async (req, res) => {
   const host = `${req.protocol}://${req.get('host')}`;
-  const user = await userService.updateUserById(req.params.userId, {
+  const user = req.user as User;
+  const userWithAttachedAvatar = await userService.updateUserById(user.id, {
     avatar_src: `${host}/v1/${UPLOADS_PATH}/${req.file?.filename}`
   });
-  res.send(user);
+  res.send(userWithAttachedAvatar);
 });
 
 export default {
   getUsers,
   getUser,
   updateUser,
+  getAuthorizedUserData,
   uploadAvatar
 };

@@ -35,17 +35,10 @@ const resetPassword = {
   })
 };
 
-const verifyEmail = {
-  query: Joi.object().keys({
-    token: Joi.string().required()
-  })
-};
-
 export default {
   login,
   logout,
   refreshTokens,
   forgotPassword,
-  resetPassword,
-  verifyEmail
+  resetPassword
 };

@@ -267,6 +267,8 @@ async function clientsSeed() {
 }
 
 async function deliveriesSeed() {
+  let deliveryId = 1;
+
   try {
     console.log('-- Deliveries seeding...');
     console.log('\x1b[32m%s\x1b[0m', 'Deleting all deliveries');
@@ -300,8 +302,11 @@ async function deliveriesSeed() {
       const deliveryDate = new Date(date);
       const deliveryTime = getRandomTimeInterval(deliveryDate, '8:30', '18:00');
 
+      deliveryId++;
+
       return {
         car: Math.random() < 0.4,
+        deliveryId,
         express: Math.random() < 0.3,
         comment: Math.random() < 0.3 ? getRandomElement(comments) : '',
         contents: getRandomElement(contents),
