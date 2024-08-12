@@ -28,7 +28,10 @@ const setState = {
         'any.required': 'State is required',
         'string.base': 'State must be a string',
         'any.only': 'State must be done or canceled'
-      })
+      }),
+    comment: Joi.string().allow(null).allow('').messages({
+      'string.base': 'Comment must be a string'
+    })
   })
 };
 
