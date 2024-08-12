@@ -1,6 +1,7 @@
-import { DeliveryState, PrismaClient } from '@prisma/client';
+import { DeliveryState, PrismaClient, Role } from '@prisma/client';
 import prismaRandom from 'prisma-extension-random';
 import { getDates, getRandomElement, getRandomTimeInterval } from './utils';
+import * as os from 'node:os';
 
 const prisma = new PrismaClient().$extends(prismaRandom());
 
@@ -26,6 +27,18 @@ const setSystemAvailability = async (availability: boolean) => {
 
 const removeAllTokens = async () => {
   await prisma.token.deleteMany();
+};
+
+const setDefaultUserData = async () => {
+  await prisma.user.update({
+    where: {
+      email: 'courier@demo.com'
+    },
+    data: {
+      password: '$2a$08$JwfGcvZak3Fevf/Mt0Vkzuo8JCWuq2ymRPk2RrZXlpOqG/VSLCOYW',
+      avatar_src: '/uploads/default-avatar.png'
+    }
+  });
 };
 
 const resetDeliveries = async () => {
@@ -122,6 +135,7 @@ const makeHistoryDeliveries = async () => {
 const main = async () => {
   await removeAllTokens();
   await setSystemAvailability(false);
+  await setDefaultUserData();
   await resetDeliveries();
   await assignDeliveries();
   await makeHistoryDeliveries();
