@@ -36,7 +36,7 @@ const setDefaultUserData = async () => {
     },
     data: {
       password: '$2a$08$JwfGcvZak3Fevf/Mt0Vkzuo8JCWuq2ymRPk2RrZXlpOqG/VSLCOYW',
-      avatar_src: '/uploads/default-avatar.png'
+      avatar_src: '/uploads/default_avatar.jpg'
     }
   });
 };
