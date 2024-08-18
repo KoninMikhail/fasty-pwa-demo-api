@@ -49,10 +49,10 @@ const getDeliveriesList = {
     car: Joi.boolean().messages({
       'boolean.base': 'Car must be a boolean'
     }),
-    weightMin: Joi.number().integer().min(1).messages({
+    weightMin: Joi.number().integer().min(0).messages({
       'number.base': 'WeightMin must be a number',
       'number.integer': 'Weight min must be an integer',
-      'number.min': 'Weight min must be at least 1'
+      'number.min': 'Weight min must be at least 0'
     }),
     weightMax: Joi.number().integer().max(150).messages({
       'number.base': 'WeightMax must be a number',
