@@ -1,7 +1,7 @@
 import express from 'express';
 import { deliveryController } from '../../controllers';
 import validate from '../../middlewares/validate';
-import { deliveryValidation } from '../../validations';
+import { deliveryValidation, searchValidation } from '../../validations';
 import auth from '../../middlewares/auth';
 
 const router = express.Router();
@@ -51,7 +51,21 @@ router
     deliveryController.getCourierHistoryDeliveries
   );
 
-router.route('/search').get(auth('getDeliveries'), deliveryController.getDeliveriesByQuery);
+router
+  .route('/search')
+  .get(
+    auth('getDeliveries'),
+    validate(searchValidation.query),
+    deliveryController.getDeliveriesByQuery
+  );
+router
+  .route('/search/queries')
+  .get(auth('getDeliveries'), deliveryController.getQueryHistory)
+  .delete(
+    auth('getDeliveries'),
+    validate(searchValidation.deleteQuery),
+    deliveryController.removeQueryHistoryItem
+  );
 
 export default router;
 

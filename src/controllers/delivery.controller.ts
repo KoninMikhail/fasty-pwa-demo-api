@@ -1,6 +1,6 @@
 import catchAsync from '../utils/catchAsync';
 import { DeliveryState, User } from '@prisma/client';
-import { deliveryService } from '../services';
+import { deliveryService, searchQueryService } from '../services';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import exclude from '../utils/exclude';
@@ -144,7 +144,27 @@ const attachDeliveryToUser = catchAsync(async (req, res) => {
 
 const getDeliveriesByQuery = catchAsync(async (req, res) => {
   const { query } = req.query;
-  return res.status(httpStatus.NO_CONTENT).send();
+  if (query) {
+    await searchQueryService.createQueryHistoryItem((req.user as User).id, query as string);
+    return res.send([]);
+  }
+  return res.send([]);
+});
+
+const getQueryHistory = catchAsync(async (req, res) => {
+  const user = req.user as User;
+  const userId = user.id;
+  const queries = await searchQueryService.getQueryHistoryByUserId(userId);
+  const onlyStrings = queries.map((query) => query.query);
+  return res.send(onlyStrings);
+});
+
+const removeQueryHistoryItem = catchAsync(async (req, res) => {
+  const user = req.user as User;
+  const userId = user.id;
+  const query = req.query.query as string;
+  await searchQueryService.removeQueryHistoryItemByUserId(userId, query);
+  return res.send(true);
 });
 
 export default {
@@ -154,5 +174,7 @@ export default {
   getDeliveryById,
   setDeliveryState,
   attachDeliveryToUser,
-  getDeliveriesByQuery
+  getDeliveriesByQuery,
+  getQueryHistory,
+  removeQueryHistoryItem
 };
