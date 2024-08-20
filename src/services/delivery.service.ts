@@ -14,6 +14,7 @@ const getDeliveriesQueryWeightFilter = (weightMin?: number, weightMax?: number) 
   if (weightMin) return { weight: { gte: weightMin } };
   return { weight: { lte: weightMax } };
 };
+
 const getDeliveriesQueryDateFilter = (dateFrom?: string, dateTo?: string) => {
   const getDate = (givenDate: string): string => {
     const frozenDate = new Date(givenDate);
@@ -97,6 +98,45 @@ const queryDeliveries = async <Include extends keyof Prisma.DeliveryInclude>(
   })[];
 };
 
+const queryDeliveriesByText = async (query: string) => {
+  const deliveryId = Number.isNaN(parseFloat(query)) ? undefined : parseFloat(query);
+  return prisma.delivery.findMany({
+    where: {
+      OR: [
+        {
+          deliveryId: {
+            equals: deliveryId
+          },
+          address: {
+            address: {
+              contains: query,
+              mode: 'insensitive'
+            }
+          }
+        },
+        {
+          contents: {
+            contains: query,
+            mode: 'insensitive'
+          }
+        }
+      ]
+    },
+    include: {
+      contact: true,
+      courier: true,
+      manager: true,
+      address: {
+        include: {
+          subway: true
+        }
+      },
+      client: true
+    },
+    take: 30
+  });
+};
+
 const findDeliveryById = async (deliveryId: string) => {
   return prisma.delivery.findFirst({
     where: {
@@ -142,5 +182,6 @@ export default {
   findDeliveryById,
   updateDeliveryById,
   attachCourierToDelivery,
-  setDeliveryState
+  setDeliveryState,
+  queryDeliveriesByText
 };

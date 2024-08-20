@@ -146,7 +146,8 @@ const getDeliveriesByQuery = catchAsync(async (req, res) => {
   const { query } = req.query;
   if (query) {
     await searchQueryService.createQueryHistoryItem((req.user as User).id, query as string);
-    return res.send([]);
+    const deliveries = await deliveryService.queryDeliveriesByText(query as string);
+    return res.send(deliveries);
   }
   return res.send([]);
 });
