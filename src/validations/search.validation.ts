@@ -8,10 +8,12 @@ const query = Joi.object().keys({
 });
 
 const deleteQuery = Joi.object().keys({
-  query: Joi.string().required().min(1).messages({
-    'any.required': 'Query is required',
-    'string.base': 'Query must be a string',
-    'string.min': 'Query must be at least 1 character long'
+  params: Joi.object().keys({
+    queryForDelete: Joi.string().required().min(1).messages({
+      'any.required': 'Query is required',
+      'string.base': 'Query must be a string',
+      'string.min': 'Query must be at least 1 character long'
+    })
   })
 });
 

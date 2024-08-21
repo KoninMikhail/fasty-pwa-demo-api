@@ -61,11 +61,12 @@ router
 router
   .route('/search/queries')
   .get(auth('getDeliveries'), deliveryController.getQueryHistory)
-  .delete(
-    auth('getDeliveries'),
-    validate(searchValidation.deleteQuery),
-    deliveryController.removeQueryHistoryItem
-  );
+  
+router.route('/search/queries/:queryForDelete').delete(
+  auth('getDeliveries'),
+  validate(searchValidation.deleteQuery),
+  deliveryController.removeQueryHistoryItem
+);
 
 export default router;
 
