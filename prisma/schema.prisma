@@ -3,6 +3,7 @@
 
 generator client {
   provider = "prisma-client-js"
+  output   = "./generated/client"
 }
 
 datasource db {
@@ -12,6 +13,7 @@ datasource db {
 
 generator dbml {
   provider = "prisma-dbml-generator"
+  output   = "./generated/dbml"
 }
 
 model User {
