@@ -101,7 +101,7 @@
     "xss-filters": "^1.2.7"
   },
   "prisma": {
-    "schema": "prisma/schema.prisma",
+    "schema": "./prisma/schema.prisma",
     "seed": "ts-node prisma/seed/seed.ts"
   }
 }
