@@ -12,5 +12,5 @@
     "skipLibCheck": true,
     "strictNullChecks": true
   },
-  "include": ["prisma/**/*.ts", "src/**/*.ts"],
+  "include": ["prisma/schema.prisma", "src/**/*.ts"],
 }
