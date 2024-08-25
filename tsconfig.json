@@ -3,7 +3,6 @@
     "target": "es2017",
     "outDir": "./build",
     "module": "commonjs",
-    "rootDir": ".",
     "types": ["node"],
     "resolveJsonModule": true,
     "diagnostics": false,
