@@ -16,7 +16,7 @@
     "db:refesh": "ts-node prisma/seed/update-seed.ts",
     "db:studio": "prisma studio",
     "build": "rimraf build && tsc -p tsconfig.json",
-    "postinstall": "prisma generate && DEBUG='*' yarn prisma generate"
+    "postinstall": "prisma generate"
   },
   "keywords": [
     "node",
@@ -101,6 +101,7 @@
     "xss-filters": "^1.2.7"
   },
   "prisma": {
+    "schema": "prisma/schema.prisma",
     "seed": "ts-node prisma/seed/seed.ts"
   }
 }
