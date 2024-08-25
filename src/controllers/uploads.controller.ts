@@ -13,14 +13,14 @@ const getUpload = catchAsync((req, res) => {
   const mimetype = getImageMimetype(fileExt);
 
   if (!mimetype || mimetype === '') {
-    return res.status(httpStatus.BAD_REQUEST).send();
+    return res.sendStatus(httpStatus.BAD_REQUEST);
   }
 
   res.setHeader('Content-Type', mimetype);
 
   return res.sendFile(filePath, (err) => {
     if (err) {
-      res.status(httpStatus.NOT_FOUND).send();
+      res.sendStatus(httpStatus.NOT_FOUND);
     }
   });
 });

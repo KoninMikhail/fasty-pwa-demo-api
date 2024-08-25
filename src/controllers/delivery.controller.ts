@@ -165,7 +165,7 @@ const removeQueryHistoryItem = catchAsync(async (req, res) => {
   const userId = user.id;
   const query = req.params.queryForDelete as string;
   await searchQueryService.removeQueryHistoryItemByUserId(userId, query);
-  return res.send(true);
+  return res.sendStatus(httpStatus.NO_CONTENT);
 });
 
 export default {

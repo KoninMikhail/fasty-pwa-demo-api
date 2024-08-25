@@ -58,15 +58,15 @@ router
     validate(searchValidation.query),
     deliveryController.getDeliveriesByQuery
   );
+router.route('/search/queries').get(auth('getDeliveries'), deliveryController.getQueryHistory);
+
 router
-  .route('/search/queries')
-  .get(auth('getDeliveries'), deliveryController.getQueryHistory)
-  
-router.route('/search/queries/:queryForDelete').delete(
-  auth('getDeliveries'),
-  validate(searchValidation.deleteQuery),
-  deliveryController.removeQueryHistoryItem
-);
+  .route('/search/queries/:queryForDelete')
+  .delete(
+    auth('getDeliveries'),
+    validate(searchValidation.deleteQuery),
+    deliveryController.removeQueryHistoryItem
+  );
 
 export default router;
 
@@ -430,6 +430,55 @@ export default router;
  *                 totalResults:
  *                   type: integer
  *                   example: 1
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ */
+
+/**
+ * @swagger
+ * /search/queries:
+ *   get:
+ *     summary: History search queries
+ *     description: Get user search queries
+ *     tags: [Deliveries]
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: array
+ *               items:
+ *                 type: string
+ *       "401":
+ *         $ref: '#/components/responses/Unauthorized'
+ *       "403":
+ *         $ref: '#/components/responses/Forbidden'
+ *
+ *   delete:
+ *     summary: Delete search query
+ *     description: Deletes specific search query by ID
+ *     tags: [Deliveries]
+ *     parameters:
+ *       - in: query
+ *         name: query
+ *         schema:
+ *           type: integer
+ *         required: true
+ *         description: The id of the search query to delete
+ *     responses:
+ *       "200":
+ *         description: OK
+ *         content:
+ *           application/json:
+ *             schema:
+ *               type: object
+ *               properties:
+ *                 message:
+ *                   type: string
+ *                   example: "Query deleted successfully"
  *       "401":
  *         $ref: '#/components/responses/Unauthorized'
  *       "403":

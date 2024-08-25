@@ -45,21 +45,23 @@ const getQueryHistoryByUserId = async (userId: string) => {
 };
 
 const removeQueryHistoryItemByUserId = async (userId: string, query: string) => {
-  const queryItem = await prisma.searchQuery.findMany({
+  const userQueriesHistory = await prisma.searchQuery.findMany({
     where: {
       userId,
       query
     }
   });
 
-  const deleteQueryId = queryItem.find((item) => item.query === query);
+  const deleteQueryId = userQueriesHistory.find((item) => item.query === query);
 
-  if (deleteQueryId)
+  if (deleteQueryId) {
     await prisma.searchQuery.delete({
       where: {
         id: deleteQueryId.id
       }
     });
+  }
+  return userQueriesHistory;
 };
 
 export default {
