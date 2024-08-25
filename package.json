@@ -16,7 +16,7 @@
     "db:refesh": "ts-node prisma/seed/update-seed.ts",
     "db:studio": "prisma studio",
     "build": "rimraf build && tsc -p tsconfig.json",
-    "postinstall": "prisma generate"
+    "postinstall": "prisma generate && DEBUG='*' yarn prisma generate"
   },
   "keywords": [
     "node",
