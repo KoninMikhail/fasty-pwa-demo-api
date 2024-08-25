@@ -1,3 +1,12 @@
+import {
+  addHours,
+  differenceInHours,
+  setHours,
+  setMinutes,
+  setSeconds,
+  startOfDay
+} from 'date-fns';
+
 export const getRandomGender = (): 'male' | 'female' => {
   return Math.random() > 0.5 ? 'male' : 'female';
 };
@@ -24,30 +33,45 @@ export const getRandomTimeInterval = (
   startTime: string,
   endTime: string
 ): { startTime: Date; endTime: Date } => {
-  const startDateTime = new Date(day.getTime());
-  startDateTime.setHours(Number(startTime.split(':')[0]), Number(startTime.split(':')[1]), 0);
+  // Helper function to parse time from "HH:MM" format
+  const parseTime = (time: string, date: Date): Date => {
+    const [hours, minutes] = time.split(':').map(Number);
+    return setSeconds(setMinutes(setHours(date, hours), minutes), 0);
+  };
 
-  const endDateTime = new Date(day.getTime());
-  endDateTime.setHours(Number(endTime.split(':')[0]), Number(endTime.split(':')[1]), 0);
+  const startDateTime = parseTime(startTime, startOfDay(day));
+  const endDateTime = parseTime(endTime, startOfDay(day));
 
   if (startDateTime >= endDateTime) {
     throw new Error('Start time must be less than end time');
   }
 
-  const duration = Math.floor(Math.random() * 4) + 1; // От 1 до 4 часов
+  // Calculate maximum duration in hours between start and end time
+  const maxDuration = differenceInHours(endDateTime, startDateTime);
+  if (maxDuration < 1) {
+    throw new Error('Time interval must be at least 1 hour');
+  }
 
-  const latestStart = new Date(endDateTime.getTime() - duration * 60 * 60 * 1000);
-  const randomStart = new Date(
-    startDateTime.getTime() + Math.random() * (latestStart.getTime() - startDateTime.getTime())
+  // Get a random duration between 1 and the maximum possible duration
+  const randomDuration = Math.floor(Math.random() * Math.min(4, maxDuration)) + 1;
+
+  // Calculate the latest possible start time that would allow for the random duration
+  const latestStartDateTime = addHours(endDateTime, -randomDuration);
+
+  // Generate a random start time within the allowed range
+  const randomStartTime = new Date(
+    startDateTime.getTime() +
+      Math.random() * (latestStartDateTime.getTime() - startDateTime.getTime())
   );
 
-  const randomEnd = new Date(randomStart.getTime() + duration * 60 * 60 * 1000);
+  // Calculate the end time based on the random start time and random duration
+  const randomEndTime = addHours(randomStartTime, randomDuration);
 
-  if (randomEnd > endDateTime) {
+  if (randomEndTime > endDateTime) {
     throw new Error('Generated time interval goes beyond working hours');
   }
 
-  return { startTime: randomStart, endTime: randomEnd };
+  return { startTime: randomStartTime, endTime: randomEndTime };
 };
 
 export const generateRandomNumber = (): number => {
