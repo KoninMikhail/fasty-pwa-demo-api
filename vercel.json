@@ -1,6 +1,5 @@
 {
   "version": 2,
-  "outputDirectory": "build/src",
   "builds": [
     {
       "src": "/build/src/index.js",
