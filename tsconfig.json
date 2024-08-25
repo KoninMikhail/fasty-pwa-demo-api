@@ -3,6 +3,7 @@
     "target": "es2017",
     "outDir": "./build",
     "module": "commonjs",
+    "rootDir": ".",
     "types": ["node"],
     "resolveJsonModule": true,
     "diagnostics": false,
@@ -12,5 +13,5 @@
     "skipLibCheck": true,
     "strictNullChecks": true
   },
-  "include": ["prisma/schema.prisma", "src/**/*.ts"],
+  "include": ["src/**/*.ts", "prisma/*"],
 }
