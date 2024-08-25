@@ -4,8 +4,7 @@
   "builds": [
     {
       "src": "/build/src/index.js",
-      "use": "@now/node",
-      "config": { "includeFiles": ["*"] }
+      "use": "@now/node"
     }
   ],
   "routes": [
