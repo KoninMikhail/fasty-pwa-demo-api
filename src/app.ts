@@ -54,9 +54,6 @@ if (config.env === 'production') {
 
 // v1 api routes
 app.use('/v1', routes);
-app.use('/', (req, res) =>
-  res.send('Welcome to <a href="https://github.com/KoninMikhail/fasty-pwa-demo-api">Fasty.API</a>')
-);
 
 // send back a 404 error for any unknown api request
 app.use((req, res, next) => {
