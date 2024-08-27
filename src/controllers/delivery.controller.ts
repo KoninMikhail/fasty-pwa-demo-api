@@ -5,6 +5,7 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import exclude from '../utils/exclude';
 import pick from '../utils/pick';
+import searchQueryService from '../services/search-query.service';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
@@ -144,7 +145,28 @@ const attachDeliveryToUser = catchAsync(async (req, res) => {
 
 const getDeliveriesByQuery = catchAsync(async (req, res) => {
   const { query } = req.query;
-  return res.status(httpStatus.NO_CONTENT).send();
+  if (query) {
+    await searchQueryService.createQueryHistoryItem((req.user as User).id, query as string);
+    const deliveries = await deliveryService.queryDeliveriesByText(query as string);
+    return res.send(deliveries);
+  }
+  return res.send([]);
+});
+
+const getQueryHistory = catchAsync(async (req, res) => {
+  const user = req.user as User;
+  const userId = user.id;
+  const queries = await searchQueryService.getQueryHistoryByUserId(userId);
+  const onlyStrings = queries.map((query) => query.query);
+  return res.send(onlyStrings);
+});
+
+const removeQueryHistoryItem = catchAsync(async (req, res) => {
+  const user = req.user as User;
+  const userId = user.id;
+  const query = req.params.queryForDelete as string;
+  await searchQueryService.removeQueryHistoryItemByUserId(userId, query);
+  return res.status(httpStatus.NO_CONTENT).send('Previous query was deleted');
 });
 
 export default {
@@ -154,5 +176,7 @@ export default {
   getDeliveryById,
   setDeliveryState,
   attachDeliveryToUser,
-  getDeliveriesByQuery
+  getDeliveriesByQuery,
+  removeQueryHistoryItem,
+  getQueryHistory
 };
