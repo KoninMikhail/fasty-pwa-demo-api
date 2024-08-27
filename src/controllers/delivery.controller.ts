@@ -124,7 +124,10 @@ const getDeliveryById = catchAsync(async (req, res) => {
 const setDeliveryState = catchAsync(async (req, res) => {
   const { deliveryId } = req.params;
   const { state } = req.body;
-  const updatedDelivery = await deliveryService.setDeliveryState(deliveryId, state);
+  if (!Object.values(DeliveryState).includes(state)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid state');
+  }
+  const updatedDelivery = await deliveryService.updateDeliveryById(deliveryId, { state });
   return res.send(updatedDelivery);
 });
 

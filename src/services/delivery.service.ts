@@ -170,18 +170,10 @@ const attachCourierToDelivery = async (deliveryId: string, courierId: string) =>
   return updateDeliveryById(deliveryId, { courier_id: courierId, state: 'delivering' });
 };
 
-const setDeliveryState = async (deliveryId: string, state: DeliveryState) => {
-  if (!Object.values(DeliveryState).includes(state)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid state');
-  }
-  return updateDeliveryById(deliveryId, { state });
-};
-
 export default {
   queryDeliveries,
   findDeliveryById,
   updateDeliveryById,
   attachCourierToDelivery,
-  setDeliveryState,
   queryDeliveriesByText
 };
