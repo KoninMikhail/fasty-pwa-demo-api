@@ -36,7 +36,7 @@ app.use(
         formAction: ["'self'"],
         frameAncestors: ["'self'"],
         mediaSrc: ["'self'", ...config.frontendUrls],
-      },
+      }
     },
     crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: { policy: "cross-origin" },
@@ -49,6 +49,14 @@ app.use(
     xssFilter: true,
   })
 );
+
+app.use((req, res, next) => {
+  res.removeHeader('Browsing-Topics');
+  res.removeHeader('Join-Ad-Interest-Group');
+  res.removeHeader('Run-Ad-Auction');
+  next();
+});
+
 
 // parse json request body
 app.use(express.json());
