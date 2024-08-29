@@ -50,13 +50,6 @@ app.use(
   })
 );
 
-app.use((req, res, next) => {
-  res.removeHeader('Browsing-Topics');
-  res.removeHeader('Join-Ad-Interest-Group');
-  res.removeHeader('Run-Ad-Auction');
-  next();
-});
-
 
 // parse json request body
 app.use(express.json());
