@@ -34,6 +34,7 @@ app.use(
         objectSrc: ["'none'"],
         formAction: ["'self'"],
         frameAncestors: ["'self'"],
+        mediaSrc: ["'self'", ...config.frontendUrls],
       },
     },
     crossOriginEmbedderPolicy: { policy: "require-corp" },
