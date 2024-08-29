@@ -1,6 +1,9 @@
 import { DeliveryState, PrismaClient, Role } from '@prisma/client';
 import prismaRandom from 'prisma-extension-random';
 import { getDates, getRandomElement, getRandomTimeInterval } from './utils';
+import { UPLOADS_PATH } from "../../src/config/uploads";
+import path from "path";
+import * as fs from "node:fs";
 
 const prisma = new PrismaClient().$extends(prismaRandom());
 
@@ -39,6 +42,24 @@ const setDefaultUserData = async () => {
     }
   });
 };
+
+const removeNonDefaultUploads = async () => {
+  const directoryPath = path.join(__dirname, `../../${UPLOADS_PATH}/`);
+  const filePattern = new RegExp(/^\d+-avatar\.png$/);
+
+  try {
+    const files = await fs.promises.readdir(directoryPath);
+    const matchedFiles = files.filter(file => filePattern.test(file));
+
+    for (const file of matchedFiles) {
+      const filePath = path.join(directoryPath, file);
+      await fs.promises.unlink(filePath);
+    }
+  } catch (err) {
+    console.error('Error: ' + err);
+  }
+}
+
 
 const resetDeliveries = async () => {
   const allDeliveries = await prisma.delivery.findMany();
@@ -133,6 +154,7 @@ const makeHistoryDeliveries = async () => {
 
 const main = async () => {
   await removeAllTokens();
+  await removeNonDefaultUploads();
   await setSystemAvailability(false);
   await setDefaultUserData();
   await resetDeliveries();
