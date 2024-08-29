@@ -34,10 +34,9 @@ const getAuthorizedUserData = catchAsync(async (req, res) => {
 });
 
 const uploadAvatar = catchAsync(async (req, res) => {
-  const host = `${req.protocol}://${req.get('host')}`;
   const user = req.user as User;
   const userWithAttachedAvatar = await userService.updateUserById(user.id, {
-    avatar_src: `${host}/v1/${UPLOADS_PATH}/${req.file?.filename}`
+    avatar_src: `/${UPLOADS_PATH}/${req.file?.filename}`
   });
   res.send(userWithAttachedAvatar);
 });
