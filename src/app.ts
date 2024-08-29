@@ -23,9 +23,28 @@ if (config.env !== 'test') {
 // set security HTTP headers
 app.use(
   helmet({
-    contentSecurityPolicy: false,
-    crossOriginResourcePolicy: false,
-    crossOriginEmbedderPolicy: false
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", ...config.frontendUrls],
+        styleSrc: ["'self'", "'unsafe-inline'", ...config.frontendUrls],
+        imgSrc: ["'self'", "data:", ...config.frontendUrls],
+        connectSrc: ["'self'", ...config.frontendUrls],
+        fontSrc: ["'self'", ...config.frontendUrls],
+        objectSrc: ["'none'"],
+        formAction: ["'self'"],
+        frameAncestors: ["'self'"],
+      },
+    },
+    crossOriginEmbedderPolicy: { policy: "require-corp" },
+    crossOriginResourcePolicy: { policy: "same-site" },
+    frameguard: { action: 'deny' },
+    hidePoweredBy: true,
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+    ieNoOpen: true,
+    noSniff: true,
+    referrerPolicy: { policy: 'no-referrer' },
+    xssFilter: true,
   })
 );
 
