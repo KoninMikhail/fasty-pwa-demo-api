@@ -159,7 +159,18 @@ const findDeliveryById = async (deliveryId: string) => {
 const updateDeliveryById = async (deliveryId: string, updateBody: any) => {
   return prisma.delivery.update({
     where: { id: deliveryId },
-    data: updateBody
+    data: updateBody,
+    include: {
+      contact: true,
+      courier: true,
+      manager: true,
+      address: {
+        include: {
+          subway: true
+        }
+      },
+      client: true
+    }
   });
 };
 

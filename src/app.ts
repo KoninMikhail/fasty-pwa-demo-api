@@ -23,7 +23,8 @@ if (config.env !== 'test') {
 // set security HTTP headers
 app.use(
   helmet({
-    contentSecurityPolicy: false
+    contentSecurityPolicy: false,
+    crossOriginEmbedderPolicy: false
   })
 );
 
