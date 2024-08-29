@@ -39,7 +39,7 @@ app.use(
     },
     crossOriginEmbedderPolicy: { policy: "require-corp" },
     crossOriginResourcePolicy: { policy: "same-site" },
-    frameguard: { action: 'deny' },
+    frameguard: { action: 'sameorigin' },
     hidePoweredBy: true,
     hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
     ieNoOpen: true,
