@@ -66,7 +66,6 @@ cp .env.example .env
 - **Authentication and authorization**: using [passport](http://www.passportjs.org)
 - **Validation**: request data validation using [Joi](https://joi.dev)
 - **Logging**: using [winston](https://github.com/winstonjs/winston) and [morgan](https://github.com/expressjs/morgan)
-- `future` **Testing**: unit and integration tests using [Jest](https://jestjs.io)
 - **Error handling**: centralized error handling mechanism
 - **API documentation**: with [swagger-jsdoc](https://github.com/Surnet/swagger-jsdoc) and [swagger-ui-express](https://github.com/scottie1984/swagger-ui-express)
 - **Process management**: advanced production process management using [PM2](https://pm2.keymetrics.io)
@@ -95,19 +94,6 @@ Running in production:
 yarn start
 ```
 
-Testing:
-
-```bash
-# run all tests
-yarn test
-
-# run all tests in watch mode
-yarn test:watch
-
-# run test coverage
-yarn coverage
-```
-
 Database:
 
 ```bash
@@ -116,6 +102,9 @@ yarn db:push
 
 # start prisma studio
 yarn db:studio
+
+# reset demo data
+yarn db:refesh
 ```
 
 Linting:
@@ -186,12 +175,13 @@ List of available routes:
 **User routes**:\
 `GET /v1/users` - get all users\
 `GET /v1/users/:userId` - get user\
-`PATCH /v1/users/:userId` - update user\
+`GET /v1/users/me/profileData` - get current user profile\
+`GET /v1/users//me/uploadAvatar` - upload avatar\
 
 **Delivery routes**:\
 `GET /v1/deliveries/item/:deliveryId` - get delivery by id\
 `PATCH /v1/deliveries/item/:deliveryId/set-state` - set delivery state\
-`POST /v1/deliveries/item/:deliveryId/assign` - assign delivery\
+`POST /v1/deliveries/item/:deliveryId/assign` - assign delivery with me\
 `GET /v1/deliveries/my` - get user deliveries\
 `GET /v1/deliveries/history` - get user deliveries history\
 `GET /v1/deliveries/upcoming` - get upcoming deliveries\

@@ -1,7 +1,6 @@
 import { DeliveryState, PrismaClient, Role } from '@prisma/client';
 import prismaRandom from 'prisma-extension-random';
 import { getDates, getRandomElement, getRandomTimeInterval } from './utils';
-import * as os from 'node:os';
 
 const prisma = new PrismaClient().$extends(prismaRandom());
 
@@ -36,7 +35,7 @@ const setDefaultUserData = async () => {
     },
     data: {
       password: '$2a$08$JwfGcvZak3Fevf/Mt0Vkzuo8JCWuq2ymRPk2RrZXlpOqG/VSLCOYW',
-      avatar_src: '/uploads/default-avatar.png'
+      avatar_src: '/uploads/default_avatar.jpg'
     }
   });
 };
@@ -55,7 +54,7 @@ const resetDeliveries = async () => {
         id: entry.id
       },
       data: {
-        date: new Date(),
+        date: randomDay,
         time_start: deliveryTime.startTime,
         time_end: deliveryTime.endTime,
         state: DeliveryState.created,

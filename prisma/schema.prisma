@@ -12,25 +12,27 @@ datasource db {
 
 generator dbml {
   provider = "prisma-dbml-generator"
+  output   = "./generated/dbml"
 }
 
 model User {
-  id                  String     @id @default(auto()) @map("_id") @db.ObjectId
+  id                  String        @id @default(auto()) @map("_id") @db.ObjectId
   firstName           String
   lastName            String
   gender              String
-  email               String     @unique
+  email               String        @unique
   active              Boolean
   language            String
   Token               Token[]
   password            String
-  createdAt           DateTime?  @default(now())
-  updatedAt           DateTime?  @updatedAt
+  createdAt           DateTime?     @default(now())
+  updatedAt           DateTime?     @updatedAt
   avatar_src          String?
-  role                Role       @default(MANAGER)
+  role                Role          @default(MANAGER)
   phone               String?
-  deliveriesAsCourier Delivery[] @relation("CourierToDelivery")
-  deliveriesAsManager Delivery[] @relation("ManagerToDelivery")
+  deliveriesAsCourier Delivery[]    @relation("CourierToDelivery")
+  deliveriesAsManager Delivery[]    @relation("ManagerToDelivery")
+  searchQueries       SearchQuery[]
 }
 
 model Token {
@@ -122,6 +124,15 @@ model Client {
 model System {
   id                 String  @id @default(auto()) @map("_id") @db.ObjectId
   waitUpdateDemoData Boolean @default(false)
+}
+
+model SearchQuery {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  query     String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    String   @db.ObjectId
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 enum ClientType {

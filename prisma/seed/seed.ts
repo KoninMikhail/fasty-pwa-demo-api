@@ -1,5 +1,5 @@
-import { faker, tr } from '@faker-js/faker';
-import { Contact, DeliveryState, Prisma, PrismaClient } from '@prisma/client';
+import { faker } from '@faker-js/faker';
+import { Address, DeliveryState, Prisma, PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import prismaRandom from 'prisma-extension-random';
 
@@ -224,11 +224,16 @@ async function clientsSeed() {
           return;
         }
 
-        const randomAddresses = await prisma.address.findManyRandom(3, {
-          select: {
-            id: true
-          }
-        });
+        const randomAddresses = (await prisma.address
+          .findManyRandom(3, {
+            select: {
+              id: true
+            }
+          })
+          .then((addresses) => addresses.map((address) => ({ id: address.id })))) as Record<
+          'id',
+          Address['id']
+        >;
 
         const client = await prisma.client.create({
           select: {

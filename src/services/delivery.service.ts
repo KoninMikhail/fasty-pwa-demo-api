@@ -159,18 +159,7 @@ const findDeliveryById = async (deliveryId: string) => {
 const updateDeliveryById = async (deliveryId: string, updateBody: any) => {
   return prisma.delivery.update({
     where: { id: deliveryId },
-    data: updateBody,
-    include: {
-      contact: true,
-      courier: true,
-      manager: true,
-      address: {
-        include: {
-          subway: true
-        }
-      },
-      client: true
-    }
+    data: updateBody
   });
 };
 
@@ -181,10 +170,18 @@ const attachCourierToDelivery = async (deliveryId: string, courierId: string) =>
   return updateDeliveryById(deliveryId, { courier_id: courierId, state: 'delivering' });
 };
 
+const setDeliveryState = async (deliveryId: string, state: DeliveryState) => {
+  if (!Object.values(DeliveryState).includes(state)) {
+    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid state');
+  }
+  return updateDeliveryById(deliveryId, { state });
+};
+
 export default {
   queryDeliveries,
   findDeliveryById,
   updateDeliveryById,
   attachCourierToDelivery,
+  setDeliveryState,
   queryDeliveriesByText
 };

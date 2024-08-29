@@ -1,11 +1,10 @@
 import catchAsync from '../utils/catchAsync';
 import { DeliveryState, User } from '@prisma/client';
-import { deliveryService } from '../services';
+import { deliveryService, searchQueryService } from '../services';
 import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import exclude from '../utils/exclude';
 import pick from '../utils/pick';
-import searchQueryService from '../services/search-query.service';
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
@@ -124,10 +123,7 @@ const getDeliveryById = catchAsync(async (req, res) => {
 const setDeliveryState = catchAsync(async (req, res) => {
   const { deliveryId } = req.params;
   const { state } = req.body;
-  if (!Object.values(DeliveryState).includes(state)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, 'Invalid state');
-  }
-  const updatedDelivery = await deliveryService.updateDeliveryById(deliveryId, { state });
+  const updatedDelivery = await deliveryService.setDeliveryState(deliveryId, state);
   return res.send(updatedDelivery);
 });
 
@@ -169,7 +165,7 @@ const removeQueryHistoryItem = catchAsync(async (req, res) => {
   const userId = user.id;
   const query = req.params.queryForDelete as string;
   await searchQueryService.removeQueryHistoryItemByUserId(userId, query);
-  return res.status(httpStatus.NO_CONTENT).send('Previous query was deleted');
+  return res.sendStatus(httpStatus.NO_CONTENT);
 });
 
 export default {
@@ -180,6 +176,6 @@ export default {
   setDeliveryState,
   attachDeliveryToUser,
   getDeliveriesByQuery,
-  removeQueryHistoryItem,
-  getQueryHistory
+  getQueryHistory,
+  removeQueryHistoryItem
 };

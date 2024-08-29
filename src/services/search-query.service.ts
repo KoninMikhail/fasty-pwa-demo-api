@@ -52,16 +52,16 @@ const removeQueryHistoryItemByUserId = async (userId: string, query: string) => 
     }
   });
 
-  const hasDeletableQuery = userQueriesHistory.find((item) => item.query === query);
+  const deleteQueryId = userQueriesHistory.find((item) => item.query === query);
 
-  if (hasDeletableQuery) {
-    return prisma.searchQuery.delete({
+  if (deleteQueryId) {
+    await prisma.searchQuery.delete({
       where: {
-        id: hasDeletableQuery.id
+        id: deleteQueryId.id
       }
     });
   }
-  throw new Error('Query not found');
+  return userQueriesHistory;
 };
 
 export default {

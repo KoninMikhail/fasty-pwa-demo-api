@@ -1,9 +1,8 @@
 import express from 'express';
 import { deliveryController } from '../../controllers';
 import validate from '../../middlewares/validate';
-import { deliveryValidation } from '../../validations';
+import { deliveryValidation, searchValidation } from '../../validations';
 import auth from '../../middlewares/auth';
-import searchValidation from '../../validations/search.validation';
 
 const router = express.Router();
 
@@ -63,7 +62,11 @@ router.route('/search/queries').get(auth('getDeliveries'), deliveryController.ge
 
 router
   .route('/search/queries/:queryForDelete')
-  .delete(auth('getDeliveries'), deliveryController.removeQueryHistoryItem);
+  .delete(
+    auth('getDeliveries'),
+    validate(searchValidation.deleteQuery),
+    deliveryController.removeQueryHistoryItem
+  );
 
 export default router;
 
