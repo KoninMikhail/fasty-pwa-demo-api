@@ -20,6 +20,7 @@ if (config.env !== 'test') {
   app.use(morgan.errorHandler);
 }
 
+
 // set security HTTP headers
 app.use(
   helmet({
@@ -37,7 +38,7 @@ app.use(
         mediaSrc: ["'self'", ...config.frontendUrls],
       },
     },
-    crossOriginEmbedderPolicy: { policy: "require-corp" },
+    crossOriginEmbedderPolicy: false,
     crossOriginResourcePolicy: { policy: "same-site" },
     frameguard: { action: 'sameorigin' },
     hidePoweredBy: true,
