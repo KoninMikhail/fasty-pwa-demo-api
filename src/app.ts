@@ -24,6 +24,7 @@ if (config.env !== 'test') {
 app.use(
   helmet({
     contentSecurityPolicy: false,
+    crossOriginResourcePolicy: false,
     crossOriginEmbedderPolicy: false
   })
 );
