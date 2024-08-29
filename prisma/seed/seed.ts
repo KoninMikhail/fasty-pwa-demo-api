@@ -14,6 +14,9 @@ import {
 } from './utils';
 import { contents } from './contents';
 import { comments } from './comments';
+import path from "path";
+import { UPLOADS_PATH } from "../../src/config/uploads";
+import * as fs from "node:fs";
 
 const prisma = new PrismaClient().$extends(prismaRandom());
 
@@ -35,15 +38,25 @@ async function usersSeed() {
         role: 'COURIER',
         language: 'en',
         active: true,
-        avatar_src: faker.image.avatar(),
+        avatar_src: '/uploads/default_avatar.jpg',
         phone: faker.string.numeric(11)
       }
     });
 
     console.log(' -- Creating managers');
 
-    const managers = Array.from({ length: 10 }).map((_, index) => {
+    const getAvatarFilename = async (gender: string, directoryPath: string): Promise<string> => {
+      const allAvatarsByGender = gender === 'male' ? /^man_\d+\.jpg$/ : /^woman_\d+\.jpg$/;
+      const files = await fs.promises.readdir(directoryPath);
+      const matchedFiles = files.filter(file => allAvatarsByGender.test(file));
+      return getRandomElement(matchedFiles);
+    };
+
+    const managers = await Promise.all(Array.from({ length: 10 }).map(async (_, index) => {
       const gender = index % 2 === 0 ? 'male' : 'female';
+      const directoryPath = path.join(__dirname, `../../${UPLOADS_PATH}/`);
+      const avatarFilename = await getAvatarFilename(gender, directoryPath);
+
       return {
         email: faker.internet.email(),
         password: faker.internet.password(),
@@ -53,10 +66,10 @@ async function usersSeed() {
         role: 'MANAGER',
         language: 'en',
         active: false,
-        avatar_src: faker.image.avatar(),
+        avatar_src: `/uploads/${avatarFilename}`,
         phone: faker.string.numeric(11)
       } as Prisma.UserCreateInput;
-    });
+    }));
     await prisma.user.createMany({
       data: managers
     });
