@@ -4,12 +4,13 @@ import path from 'path';
 import { UPLOADS_PATH } from '../config/uploads';
 import getImageMimetype from '../utils/getImageMimetype';
 import httpStatus from 'http-status';
+import config from "../config/config";
 
 const getUpload = catchAsync((req, res) => {
   const { filename } = req.params;
 
   const fileExt = getFileExtension(filename);
-  const filePath = path.join(__dirname, `../../${UPLOADS_PATH}/`, filename);
+  const filePath = config.env === 'production' ? path.join(__dirname, `../../../${UPLOADS_PATH}/`, filename) : path.join(__dirname, `../../${UPLOADS_PATH}/`, filename);
   const mimetype = getImageMimetype(fileExt);
 
   if (!mimetype || mimetype === '') {
