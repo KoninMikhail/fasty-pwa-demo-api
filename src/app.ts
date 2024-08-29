@@ -26,7 +26,7 @@ app.use(
   helmet({
     contentSecurityPolicy: {
       directives: {
-        defaultSrc: ["'self'" , ...config.frontendUrls],
+        defaultSrc: ["'self'"],
         scriptSrc: ["'self'", "'unsafe-inline'", ...config.frontendUrls],
         styleSrc: ["'self'", "'unsafe-inline'", ...config.frontendUrls],
         imgSrc: ["'self'", "data:", ...config.frontendUrls],
@@ -39,7 +39,7 @@ app.use(
       },
     },
     crossOriginEmbedderPolicy: false,
-    crossOriginResourcePolicy: { policy: "same-site" },
+    crossOriginResourcePolicy: { policy: "cross-origin" },
     frameguard: { action: 'sameorigin' },
     hidePoweredBy: true,
     hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
