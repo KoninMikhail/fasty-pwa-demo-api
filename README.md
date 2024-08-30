@@ -16,6 +16,7 @@ Contributions are more than welcome! Please check out the [contributing guide](C
 <br>
 <br>
 
+---
 ## ATTENTION! ----------------- ATTENTION!
 
 > *The code in this repository is undergoing improvement and isn't designed for complete beginners. If you need step-by-step instructions, this project might not be suitable for you. Please note that any questions about installation on your server, unrelated to bugs, will be ignored.*
