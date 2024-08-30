@@ -124,7 +124,7 @@ yarn db:push
 yarn db:studio
 
 # reset demo data
-yarn db:refesh
+yarn db:refresh
 ```
 
 Linting:
