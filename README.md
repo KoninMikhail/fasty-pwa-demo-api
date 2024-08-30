@@ -231,13 +231,13 @@ List of available routes:
 `POST /v1/auth/login` - login\
 `POST /v1/auth/refresh-tokens` - refresh auth tokens\
 `POST /v1/auth/forgot-password` - send reset password email\
-`POST /v1/auth/reset-password` - reset password\
+`POST /v1/auth/reset-password` - reset password
 
 **User routes**:\
 `GET /v1/users` - get all users\
 `GET /v1/users/:userId` - get user\
 `GET /v1/users/me/profileData` - get current user profile\
-`GET /v1/users//me/uploadAvatar` - upload avatar\
+`GET /v1/users//me/uploadAvatar` - upload avatar
 
 **Delivery routes**:\
 `GET /v1/deliveries/item/:deliveryId` - get delivery by id\
@@ -251,10 +251,10 @@ List of available routes:
 `DELETE /v1/deliveries/queries/:queryForDelete` - remove query from history
 
 **Subway routes**:\
-`GET /v1/subways` - get all subways\
+`GET /v1/subways` - get all subways
 
 **Upload routes**:\
-`GET /v1/uploads/:filename` - get uploaded file\
+`GET /v1/uploads/:filename` - get uploaded file
 
 ## Error Handling
 
