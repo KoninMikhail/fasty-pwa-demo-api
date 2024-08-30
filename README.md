@@ -13,7 +13,8 @@ It includes all necessary data and features to create a fully functional product
 
 Contributions are more than welcome! Please check out the [contributing guide](CONTRIBUTING.md).
 
-
+<br>
+<br>
 
 ## ATTENTION! ----------------- ATTENTION!
 
@@ -21,7 +22,8 @@ Contributions are more than welcome! Please check out the [contributing guide](C
 
 ---
 
-
+<br>
+<br>
 
 
 ## Quick Start
