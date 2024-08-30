@@ -15,6 +15,15 @@ Contributions are more than welcome! Please check out the [contributing guide](C
 
 ---
 
+## ATTENTION! ----------------- ATTENTION!
+
+> *The code in this repository is undergoing improvement and isn't designed for complete beginners. If you need step-by-step instructions, this project might not be suitable for you. Please note that any questions about installation on your server, unrelated to bugs, will be ignored.*
+
+---
+
+
+
+
 ## Quick Start
 
 Clone the repo:
@@ -39,6 +48,16 @@ cp .env.example .env
 # open .env and modify the environment variables (if needed)
 ```
 
+Start the server:
+
+```bash
+# if you are in development mode
+yarn dev
+
+# if you have installed pm2 && production mode
+yarn start
+```
+
 ## Table of Contents
 
 - [Fasty.API Node Server Boilerplate](#fasty-api-node-server-boilerplate)
@@ -49,6 +68,7 @@ cp .env.example .env
   - [Environment Variables](#environment-variables)
   - [Project Structure](#project-structure)
   - [API Documentation](#api-documentation)
+    - [API Polices](#api-polices)
     - [API Endpoints](#api-endpoints)
   - [Error Handling](#error-handling)
   - [Validation](#validation)
@@ -131,8 +151,13 @@ The environment variables can be found and modified in the `.env` file. They com
 # Port number
 PORT=3000
 
+# Frontend URL
+# You can add multiple URLs separated by commas with no spaces
+FRONTEND_URL=https://localhost:5173,localhost:6020
+
 # URL of the MongoDb database at Atlas
 DATABASE_URL="mongodb+srv://secret:*.mongodb.net/fastydb?retryWrites=true&w=majority&appName=FastyDB"
+
 # JWT
 # JWT secret key
 JWT_SECRET=thisisasamplesecret
@@ -162,6 +187,40 @@ src\
 
 To view the list of available APIs and their specifications, run the server and go to `http://localhost:3000/v1/docs` in your browser. This documentation page is automatically generated using the [swagger](https://swagger.io/) definitions written as comments in the route files.
 
+### API Polices
+
+- App has configured CORS polices to allow requests from the frontend URL.
+- App has configured security HTTP headers using [helmet](https://helmetjs.github.io).
+
+```JavaScript
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+        scriptSrc: ["'self'", "'unsafe-inline'", ...config.frontendUrls],
+        styleSrc: ["'self'", "'unsafe-inline'", ...config.frontendUrls],
+        imgSrc: ["'self'", "data:", ...config.frontendUrls],
+        connectSrc: ["'self'", ...config.frontendUrls],
+        fontSrc: ["'self'", ...config.frontendUrls],
+        objectSrc: ["'none'"],
+        formAction: ["'self'"],
+        frameAncestors: ["'self'"],
+        mediaSrc: ["'self'", ...config.frontendUrls],
+    }
+  },
+  crossOriginEmbedderPolicy: false,
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+  frameguard: { action: 'sameorigin' },
+  hidePoweredBy: true,
+    hsts: { maxAge: 31536000, includeSubDomains: true, preload: true },
+  ieNoOpen: true,
+    noSniff: true,
+  referrerPolicy: { policy: 'no-referrer' },
+  xssFilter: true,
+}));
+
+```
+
 ### API Endpoints
 
 List of available routes:
@@ -186,6 +245,8 @@ List of available routes:
 `GET /v1/deliveries/history` - get user deliveries history\
 `GET /v1/deliveries/upcoming` - get upcoming deliveries\
 `GET /v1/deliveries/search` - search deliveries\
+`GET /v1/deliveries/search/queries` - search query history\
+`DELETE /v1/deliveries/queries/:queryForDelete` - remove query from history
 
 **Subway routes**:\
 `GET /v1/subways` - get all subways\
