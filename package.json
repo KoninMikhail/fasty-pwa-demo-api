@@ -1,6 +1,6 @@
 {
   "name": "fasty-demo-api",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "A boilerplate project for quickly building API using Node.js, TypeScript, Express, MongoDB, and Prisma ORM.",
   "main": "src/index.ts",
   "repository": "https://github.com/KoninMikhail/fasty-pwa-demo-api.git",
