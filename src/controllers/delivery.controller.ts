@@ -5,6 +5,7 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import exclude from '../utils/exclude';
 import pick from '../utils/pick';
+import { comments } from "../../prisma/seed/comments";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
@@ -122,8 +123,8 @@ const getDeliveryById = catchAsync(async (req, res) => {
 
 const setDeliveryState = catchAsync(async (req, res) => {
   const { deliveryId } = req.params;
-  const { state } = req.body;
-  const updatedDelivery = await deliveryService.setDeliveryState(deliveryId, state);
+  const { state, comment } = req.body;
+  const updatedDelivery = await deliveryService.setDeliveryState(deliveryId, state, comment);
   return res.send(updatedDelivery);
 });
 
