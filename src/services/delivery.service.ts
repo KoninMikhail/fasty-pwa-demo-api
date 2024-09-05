@@ -156,10 +156,14 @@ const findDeliveryById = async (deliveryId: string) => {
   });
 };
 
-const updateDeliveryById = async (deliveryId: string, updateBody: any) => {
+const updateDeliveryById = async <Include extends keyof Prisma.DeliveryInclude>(deliveryId: string, updateBody: any,  include: Include[] = ['contact', 'courier', 'manager', 'address', 'client'] as Include[]) => {
   return prisma.delivery.update({
     where: { id: deliveryId },
-    data: updateBody
+    data: updateBody,
+    include: include.reduce((acc, cur) => {
+      if (cur === 'address') return { ...acc, [cur]: { include: { subway: true } } };
+      return { ...acc, [cur]: true };
+    }, {}),
   });
 };
 
