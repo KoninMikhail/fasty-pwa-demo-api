@@ -64,7 +64,7 @@ const queryDeliveries = async <Include extends keyof Prisma.DeliveryInclude>(
   const page = options.page ?? 1;
   const limit = options.limit ?? 10;
   const sortBy = options.sortBy ?? 'date';
-  const sortType = options.sortType ?? 'desc';
+  const sortType = options.sortType ?? 'asc';
 
   const state = getDeliveriesQueryStateFilter(filter.state) ?? {};
   const weight = getDeliveriesQueryWeightFilter(filter.weightMin, filter.weightMax) ?? {};
