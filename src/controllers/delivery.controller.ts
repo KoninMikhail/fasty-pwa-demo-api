@@ -5,7 +5,6 @@ import ApiError from '../utils/ApiError';
 import httpStatus from 'http-status';
 import exclude from '../utils/exclude';
 import pick from '../utils/pick';
-import { comments } from "../../prisma/seed/comments";
 
 /* eslint-disable @typescript-eslint/no-unused-vars */
 
@@ -147,6 +146,7 @@ const getDeliveriesByQuery = catchAsync(async (req, res) => {
   const { query } = req.query;
   if (query) {
     await searchQueryService.createQueryHistoryItem((req.user as User).id, query as string);
+    await searchQueryService.trimQueryHistoryLength((req.user as User).id);
     const deliveries = await deliveryService.queryDeliveriesByText(query as string);
     return res.send(deliveries);
   }

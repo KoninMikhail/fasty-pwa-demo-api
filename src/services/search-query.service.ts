@@ -28,6 +28,30 @@ const createQueryHistoryItem = async (userId: string, query: string) => {
   });
 };
 
+const trimQueryHistoryLength = async (userId: string) => {
+  const userQueriesHistory = await prisma.searchQuery.findMany({
+    where: {
+      userId
+    },
+    orderBy: {
+      updatedAt: 'asc'
+    }
+  });
+  if (userQueriesHistory.length > 5) {
+    const trimmedQueries = userQueriesHistory.slice(0, 4);
+    await prisma.searchQuery.deleteMany({
+      where: {
+        id: {
+          notIn: trimmedQueries.map((item) => item.id)
+        }
+      }
+    });
+    return trimmedQueries;
+  }
+  return userQueriesHistory;
+
+}
+
 const getQueryHistoryByUserId = async (userId: string) => {
   const query = await prisma.searchQuery.findMany({
     where: {
@@ -67,5 +91,6 @@ const removeQueryHistoryItemByUserId = async (userId: string, query: string) => 
 export default {
   createQueryHistoryItem,
   getQueryHistoryByUserId,
+  trimQueryHistoryLength,
   removeQueryHistoryItemByUserId
 };
