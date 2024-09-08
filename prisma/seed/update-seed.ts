@@ -65,7 +65,7 @@ const resetDeliveries = async () => {
   const allDeliveries = await prisma.delivery.findMany();
 
   for (const entry of allDeliveries) {
-    const availableDates = getDates(90);
+    const availableDates = getDates(30);
     const randomDay = getRandomElement(availableDates);
     const entryDeliveryDate = new Date(randomDay);
     const deliveryTime = getRandomTimeInterval(entryDeliveryDate, '8:30', '18:00');
