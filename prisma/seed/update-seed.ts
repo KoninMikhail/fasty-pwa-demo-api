@@ -152,6 +152,16 @@ const makeHistoryDeliveries = async () => {
   }
 };
 
+const cleanupSearchHistory = async () => {
+  await prisma.searchQuery.deleteMany({
+    where: {
+      NOT: {
+        query: '25'
+      }
+    }
+  });
+}
+
 const main = async () => {
   await removeAllTokens();
   await removeNonDefaultUploads();
@@ -159,6 +169,7 @@ const main = async () => {
   await setDefaultUserData();
   await resetDeliveries();
   await assignDeliveries();
+  await cleanupSearchHistory();
   await makeHistoryDeliveries();
   await setSystemAvailability(true);
 };
