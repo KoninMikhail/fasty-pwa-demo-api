@@ -79,7 +79,7 @@ if (config.env === 'production') {
 }
 
 // trust proxy
-app.set('trust proxy', (ip) => {
+app.set('trust proxy', (ip:string) => {
   return ip === '127.0.0.1';
 })
 
