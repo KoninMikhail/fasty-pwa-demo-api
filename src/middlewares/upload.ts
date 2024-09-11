@@ -13,12 +13,15 @@ const storage = multer.diskStorage({
 });
 
 export const upload = multer({
-  limits: { fileSize: 2000000 },
+  limits: { fileSize: 5000000 },
   fileFilter: (req, file, callback) => {
+    if (file.size > 5000000) {
+      return callback(new ApiError(httpStatus.BAD_REQUEST, 'File size is too large'));
+    }
     if (!file.originalname.match(/\.(png|jpeg|jpg)$/)) {
       return callback(new ApiError(httpStatus.BAD_REQUEST, 'Please upload a Picture(PNG or JPEG)'));
     }
     callback(null, true);
   },
-  storage
+  storage,
 });
