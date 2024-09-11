@@ -78,6 +78,11 @@ if (config.env === 'production') {
   app.use('/v1/auth', authLimiter);
 }
 
+// trust proxy
+app.set('trust proxy', (ip) => {
+  return ip === '127.0.0.1';
+})
+
 // v1 api routes
 app.use('/v1', routes);
 
