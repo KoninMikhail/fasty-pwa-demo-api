@@ -65,11 +65,9 @@ app.use(compression());
 
 // enable cors
 app.use(cors());
-app.options('*', cors());
-app.post('/v1/users/me/uploadAvatar', (req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  next()
-});
+app.options('*', cors({
+  origin: [...config.frontendUrls],
+}));
 
 // jwt authentication
 app.use(passport.initialize());
